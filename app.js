@@ -19,6 +19,7 @@ io.sockets.on('connection', function(socket) {
       delete usernames[socket.id];
       --numUsers;
       io.emit('updatelist', usernames);
+      io.emit('gameover', socket.id);
       }
       });
     socket.on('add user', function(username) {
@@ -42,7 +43,14 @@ io.sockets.on('connection', function(socket) {
       var to = data.to;
       // console.log(io.sockets.connected[to]);
       io.sockets.connected[to].emit('perm_granted', {fromid: data.from, fromname: socket.username});
-
+    });
+    socket.on('turnover', function(data) {
+      var to = data.to;
+      io.sockets.connected[to].emit('turnover', {to:data.to, val: data.val});
+    });
+    socket.on('gameover', function(data) {
+      var to = data.to;
+      io.sockets.connected[to].emit('gameover', to);
     });
     });
 

@@ -2,9 +2,22 @@
 <head>
 <title>Word Building</title>
 <body>
+
 <ul id="userlist">
 </ul>
 <div id="status"></div>
+
+<div class="container">
+			<p id="oldwords"></p>
+			<h2>Current Letter: <span id="currentletter"></span></h2>
+			<h3 id="myname"></h3>
+			<input type="text" id="inputtextp1">
+			<button class="btn btn-regular" onclick="Player1()" id="submit1">Submit</button>
+			<span id="countdown1" class="timer"></span>
+			<h3 id="opponent"></h3>
+			<span id="inputtextp2"></span>
+			<span id="countdown2" class="timer"></span>
+		</div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://localhost/~sankaul/itws2/js/jquery.js"></script>
@@ -12,12 +25,16 @@
   
   var socket = io();
   var tousr;
+  var person;
   $(document).ready(function() {
   	var me;
+  	$('#countdown2').hide();
+		$('.container').hide();
 		me = prompt("Please enter your name:", "");
 		person = {un: me};
 		socket.emit('add user', person.un);
-
+		$('#myname').html(person.un);
+		
   });
 
   socket.on('updatelist', function(users) {
@@ -43,6 +60,8 @@ socket.on('asktoplay', function(data) {
 		// initgame();
 		socket.emit('perm_granted', {to: tousr, from: person.id});
 		alert('granted!');
+		$('#opponent').html(data.fname);
+		startgame(2);
 	}
 	else {
 
@@ -50,6 +69,8 @@ socket.on('asktoplay', function(data) {
 });
 socket.on('perm_granted', function(data) {
 $('#status').html('perm granted!');
+$('#opponent').html(data.fromname);
+startgame(1);
 });
 
  function changeusr(val)
@@ -61,5 +82,129 @@ $('#status').html('perm granted!');
 	socket.emit('asktoplay', {from: person.id, to: val});
 }
 }
-</script>
+
+			var associativeArray = {};
+			var current_letter = null;
+			function myFunction(val){
+				var flag = false;
+				var text = val;
+				var seconds = 60;
+				if(current_letter === null)
+					flag = true;
+				if(current_letter === text[0])
+					flag = true;
+				if(flag)
+				{
+					//check if word exists
+
+				}
+				var returnv = (!associativeArray[text] && flag);
+				if(!associativeArray[text] && flag)
+				{
+					associativeArray[text] = true;
+					current_letter = text.slice(-1);
+					document.getElementById('currentletter').innerHTML = current_letter
+					$('#oldwords').append(' '+text);
+					clearInterval(myVar);
+				}
+				else
+					alert('Already used or wrong letter!');
+
+				return returnv;
+			}
+
+			function setTimer()
+			{
+				var seconds = 10;
+				myVar = setInterval(function () {
+					    var minutes = Math.round((seconds - 30)/60);
+					    var remainingSeconds = seconds % 60;
+					    if (remainingSeconds < 10) {
+					        remainingSeconds = "0" + remainingSeconds;  
+					    }
+					    countdown.innerHTML = minutes + ":" + remainingSeconds;
+					    if (seconds == 0) {
+					        clearInterval(myVar);
+					        seconds = 60;
+					       countdown.innerHTML = "Game Over";
+					       gameOver();
+					    } else {
+					        seconds--;
+					        // alert(seconds);
+					    }
+				}, 1000);
+			}
+
+			var countdown;
+			function Player1()
+			{
+				var box = document.getElementById('inputtextp1');
+				var flag = myFunction(box.value);
+				seconds = 60;
+				if(flag)
+				{
+				$('#submit1').hide();
+				document.getElementById('inputtextp1').disabled = true;
+				countdown = document.getElementById('countdown2');
+				// alert(tousr);
+				socket.emit('turnover', {to: tousr, val: box.value});
+				setTimer()
+				}
+				
+			}
+			socket.on('turnover', function(data) {
+				// alert('gotit');
+				Player2(data.val);
+			});
+			function Player2(val)
+			{
+				var box = document.getElementById('inputtextp2');
+				box.innerHTML = val;
+				var flag = myFunction(box.innerHTML)
+				seconds = 60;
+				if(flag)
+				{
+				$('#submit1').show();
+				document.getElementById('inputtextp1').value = '';
+				$('#inputtextp1').focus();
+				countdown = document.getElementById('countdown1');
+				setTimer();
+				}
+				
+			}
+
+			var dictionary = {}
+			var address = "Dictionary/A Words.txt";
+			function startgame(val) {
+				var seconds = 60;
+				var myVar;
+				$('.container').slideDown();
+				countdown = document.getElementById('countdown'+val);
+				setTimer();
+			}
+
+			function gameOver()
+			{
+				var v1 = document.getElementById('countdown1');
+				var v2 = document.getElementById('countdown2');
+				if(v1.innerHTML == "Game Over") {
+					alert("You lost that one. Sad. :(");
+					socket.emit('gameover', {to: tousr});
+				}
+			}
+
+			socket.on('gameover', function(data) {
+				alert(data);
+				if (data == tousr)
+				{
+				alert("You win! Yay! :D");
+			}
+			});
+			$('#inputtextp1').keypress(function(e) {
+				if (e.which == 13) {
+					Player1();
+				}
+			});
+
+		</script>
 </html>
