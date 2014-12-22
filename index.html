@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Word Building</title>
+<body>
+<ul id="userlist">
+</ul>
+<div id="status"></div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://localhost/~sankaul/itws2/js/jquery.js"></script>
+<script>
+  
+  var socket = io();
+  var tousr;
+  $(document).ready(function() {
+  	var me;
+		me = prompt("Please enter your name:", "");
+		person = {un: me};
+		socket.emit('add user', person.un);
+
+  });
+
+  socket.on('updatelist', function(users) {
+	// alert(users);
+	$('#userlist').html('');
+	$.each(users, function(index, value) {
+		if (value!=person.un)
+		{
+		$('#userlist').append($('<li id='+index+' onclick="changeusr(this.id)">').text(value));
+		}
+		if (value==person.un)
+		{
+			person.id = index;
+		}
+	});
+	// $('#userlist').html();
+		});
+socket.on('asktoplay', function(data) {
+	var whattodo = confirm(data.fname+' wants to play a game of Word.Build() with you. Would you like to proceed?');
+	if (whattodo==true)
+	{
+		tousr = data.fid;
+		// initgame();
+		socket.emit('perm_granted', {to: tousr, from: person.id});
+		alert('granted!');
+	}
+	else {
+
+	}
+});
+socket.on('perm_granted', function(data) {
+$('#status').html('perm granted!');
+});
+
+ function changeusr(val)
+{
+	if (tousr!=val)
+	{
+	tousr = val;
+	alert('Asking if they want to play with you...');
+	socket.emit('asktoplay', {from: person.id, to: val});
+}
+}
+</script>
+</html>

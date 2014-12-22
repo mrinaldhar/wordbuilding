@@ -1,0 +1,16 @@
+{
+  "name": "word.build",
+  "version": "0.0.1",
+  "description": "Word.Build()",
+  "dependencies": {
+    "express": "^4.4.5",
+    "socket.io": "^1.0.6"
+  },
+  "subdomain": "wbuild",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}

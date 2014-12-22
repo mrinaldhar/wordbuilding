@@ -1,0 +1,135 @@
+<html>
+	<head>
+		<title>Example</title>
+		<link rel="stylesheet" type="text/css" href="trial.css">
+		<link rel="stylesheet" type="text/css" href="Stuff/bootstrap-3.2.0/dist/css/bootstrap.min.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		
+		<script type="text/javascript">
+			var associativeArray = {};
+			var current_letter = null;
+			function myFunction(box){
+				var flag = false;
+				var text = box.value
+				box.value = null;
+				var seconds = 60;
+				if(current_letter === null)
+					flag = true;
+				if(current_letter === text[0])
+					flag = true;
+				if(flag)
+				{
+					//check if word exists
+
+				}
+				var returnv = (!associativeArray[text] && flag);
+				if(!associativeArray[text] && flag)
+				{
+					associativeArray[text] = true;
+					current_letter = text.slice(-1);
+					document.getElementById('currentletter').innerHTML = current_letter
+					$('#oldwords').append(' '+text);
+					clearInterval(myVar);
+				}
+				else
+					alert('Already used or wrong letter!');
+
+				return returnv;
+			}
+
+			function setTimer()
+			{
+				var seconds = 60;
+				myVar = setInterval(function () {
+					    var minutes = Math.round((seconds - 30)/60);
+					    var remainingSeconds = seconds % 60;
+					    if (remainingSeconds < 10) {
+					        remainingSeconds = "0" + remainingSeconds;  
+					    }
+					    countdown.innerHTML = minutes + ":" + remainingSeconds;
+					    if (seconds == 0) {
+					        clearInterval(myVar);
+					        seconds = 60;
+					       countdown.innerHTML = "Game Over";
+					       gameOver();
+					    } else {
+					        seconds--;
+					        // alert(seconds);
+					    }
+				}, 1000);
+			}
+
+			var countdown;
+			function Player1()
+			{
+				var box = document.getElementById('inputtextp1');
+				var flag = myFunction(box)
+				alert(flag);
+				seconds = 60;
+				if(flag)
+				{
+				$('#inputtextp1').prop('disabled',true);
+				$('#submit1').hide();
+				$('#inputtextp2').prop('disabled',false);
+				$('#submit2').show();
+				countdown = document.getElementById('countdown2');
+				setTimer()
+				}
+				
+			}
+			function Player2()
+			{
+				var box = document.getElementById('inputtextp2');
+				var flag = myFunction(box)
+				seconds = 60;
+				if(flag)
+				{
+				$('#inputtextp2').prop('disabled',true);
+				$('#submit2').hide();
+				$('#inputtextp1').prop('disabled',false);
+				$('#submit1').show();
+				countdown = document.getElementById('countdown1');
+				setTimer();
+				}
+				
+			}
+
+			var dictionary = {}
+			var address = "Dictionary/A Words.txt";
+			$(window).load(function(){
+				var seconds = 60;
+				var myVar;
+				countdown = document.getElementById('countdown1');
+				setTimer();
+			});
+
+			function gameOver()
+			{
+				var v1 = document.getElementById('countdown1');
+				var v2 = document.getElementById('countdown2');
+				if(v1.innerHTML == "Game Over")
+					alert("Player2 wins!");
+				else{
+					alert("Player1 wins!");
+				}
+			}
+
+
+		</script>
+
+	</head>
+	<body>
+		<div class="container">
+			<p id="oldwords"></p>
+			<h2>Current Letter: <span id="currentletter"></span></h2>
+			<h3>Player 1</h3>
+			<input type="text" id="inputtextp1">
+			<button class="btn btn-regular" onclick="Player1()" id="submit1">Submit</button>
+			<span id="countdown1" class="timer"></span>
+			<h3>Player 2</h3>
+			<input type="text" id="inputtextp2">
+			<button class="btn btn-regular" onclick="Player2()" id="submit2">Submit</button>
+			<span id="countdown2" class="timer"></span>
+		</div>
+	</body>
+</html>
