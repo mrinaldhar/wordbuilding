@@ -1,26 +1,169 @@
 <html>
 <head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,800' rel='stylesheet' type='text/css'>
+	<style>
+		body {
+			font-family: 'Open Sans', sans-serif;
+			overflow: hidden;
+		}
+		.backgroundset {
+		}
+		#imagecontainer {
+			position: absolute;
+			left:-50px;
+			top:-50px;
+			width:110%;
+			max-width: 110%;
+			z-index:1;
+			-webkit-filter: blur(2px);
+  -moz-filter: blur(2px);
+  -o-filter: blur(2px);
+  -ms-filter: blur(2px);
+  filter: blur(2px);
+		}
+
+		.container {
+			z-index:10;
+			margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  height:50%;
+  max-height:50%;
+			width:50%;
+			max-width: 50%;
+			text-align: center;
+			background-color: rgba(255,255,255,0.8);
+			padding:20px;
+			border-radius: 5px;
+			border:1px #8a8a8a dashed;
+		}
+		h1 {
+			font-weight: 600;
+		}
+		#inputtextp1, #inputtextp2 {
+			padding:10px;
+			font-family: 'Open Sans', sans-serif;
+			font-size: 1.1em;
+			outline-width: 0px;
+			border:1px #8a8a8a dashed;
+			border-radius: 3px;
+			background-color: white;
+		}
+		ul {
+  text-align: left;
+  display: inline;
+  margin: 0;
+  padding: 15px 4px 17px 0;
+  list-style: none;
+  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+}
+ul li {
+  font: bold 12px/18px sans-serif;
+  display: inline-block;
+  margin-right: -4px;
+  position: relative;
+  padding: 15px 20px;
+  background: #fff;
+  cursor: pointer;
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -ms-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
+ul li:hover {
+  background: #555;
+  color: #fff;
+}
+ul li ul {
+  padding: 0;
+  position: absolute;
+  top: 48px;
+  left: 0;
+  width: 150px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transiton: opacity 0.2s;
+  -moz-transition: opacity 0.2s;
+  -ms-transition: opacity 0.2s;
+  -o-transition: opacity 0.2s;
+  -transition: opacity 0.2s;
+}
+ul li ul li { 
+  background: #555; 
+  display: block; 
+  color: #fff;
+  text-shadow: 0 -1px 0 #000;
+}
+ul li ul li:hover { background: #666; }
+ul li:hover ul {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+#selector {
+	position: absolute;
+	z-index:10;
+	text-align: center;
+	top:0px;
+	left:0px;
+}
+#selector li ul li {
+}
+	</style>
 <title>Word Building</title>
 <body>
+<div id="imagecontainer">
 
+</div>
+<ul id="selector">
+	<li>Online Users
 <ul id="userlist">
+
 </ul>
-<div id="status"></div>
+	</li>
+</ul>
 
 <div class="container">
+	<h1>Word.Build()</h1>
 			<p id="oldwords"></p>
 			<h2>Current Letter: <span id="currentletter"></span></h2>
+			<table width="100%">
+				<tr>
+					<td width="40%" align="center">
+
 			<h3 id="myname"></h3>
-			<input type="text" id="inputtextp1">
-			<button class="btn btn-regular" onclick="Player1()" id="submit1">Submit</button>
-			<span id="countdown1" class="timer"></span>
+		</td><td width="20%"><h3>vs.</h3></td><td width="40%" align="center">
+
 			<h3 id="opponent"></h3>
+		</td>
+	</tr>
+				<tr>
+					<td width="40%">
+			<input type="text" id="inputtextp1" placeholder="Your word goes here!">
+			<!-- <button class="btn btn-regular" onclick="Player1()" id="submit1">Submit</button> -->
+			<span id="countdown1" class="timer"></span>
+		</td>
+		<td width="20%" align="center">
+			
+		</td>
+		<td width="40%" align="right">
 			<span id="inputtextp2"></span>
 			<span id="countdown2" class="timer"></span>
+			</td>
+		</tr>
+	</table>
 		</div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
-<script src="http://localhost/~sankaul/itws2/js/jquery.js"></script>
+<!-- <script src="http://localhost/~sankaul/itws2/js/jquery.js"></script> -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script>
   
   var socket = io();
@@ -29,7 +172,6 @@
   $(document).ready(function() {
   	var me;
   	$('#countdown2').hide();
-		$('.container').hide();
 		me = prompt("Please enter your name:", "");
 		person = {un: me};
 		socket.emit('add user', person.un);
@@ -40,6 +182,7 @@
   socket.on('updatelist', function(users) {
 	// alert(users);
 	$('#userlist').html('');
+	// $('#userlist').append('<li>Online Users</li>');
 	$.each(users, function(index, value) {
 		if (value!=person.un)
 		{
@@ -68,7 +211,7 @@ socket.on('asktoplay', function(data) {
 	}
 });
 socket.on('perm_granted', function(data) {
-$('#status').html('perm granted!');
+alert("Permission Granted. Game on!");
 $('#opponent').html(data.fromname);
 startgame(1);
 });
@@ -115,7 +258,7 @@ startgame(1);
 
 			function setTimer()
 			{
-				var seconds = 10;
+				var seconds = 60;
 				myVar = setInterval(function () {
 					    var minutes = Math.round((seconds - 30)/60);
 					    var remainingSeconds = seconds % 60;
@@ -147,7 +290,7 @@ startgame(1);
 				document.getElementById('inputtextp1').disabled = true;
 				countdown = document.getElementById('countdown2');
 				// alert(tousr);
-				socket.emit('turnover', {to: tousr, val: box.value});
+				socket.emit('turnover', {from: person.id, to: tousr, val: box.value});
 				setTimer()
 				}
 				
@@ -155,6 +298,14 @@ startgame(1);
 			socket.on('turnover', function(data) {
 				// alert('gotit');
 				Player2(data.val);
+				// console.log(data.imgres);
+				stop = 1;
+				changePhotos(data.imgres);
+			});
+			socket.on('picchange', function(data) {
+				// console.log(data.imgres);
+// stop = 1;
+				changePhotos(data.imgres);
 			});
 			function Player2(val)
 			{
@@ -165,6 +316,7 @@ startgame(1);
 				if(flag)
 				{
 				$('#submit1').show();
+				document.getElementById('inputtextp1').disabled = false;
 				document.getElementById('inputtextp1').value = '';
 				$('#inputtextp1').focus();
 				countdown = document.getElementById('countdown1');
@@ -194,7 +346,7 @@ startgame(1);
 			}
 
 			socket.on('gameover', function(data) {
-				alert(data);
+				// alert(data);
 				if (data == tousr)
 				{
 				alert("You win! Yay! :D");
@@ -202,9 +354,37 @@ startgame(1);
 			});
 			$('#inputtextp1').keypress(function(e) {
 				if (e.which == 13) {
+
 					Player1();
 				}
 			});
+// var stop=0;
+			var changer;
+			function changePhotos(data) {
+				stop = 1;
+				window.setTimeout(function() {
+					changePhotosFunc(data) }, 1000);
+			}
+			function changePhotosFunc(data) {
+				console.log(data);
+				var photos = data.photos.photo;
+				// console.log(photos);
+				var addr;
+				var obj;
+				stop = 0;
+				$('#imagecontainer').html('');
+				for (var i=0; i<80; i++) {
+					obj = photos[i];
+					addr = 'https://farm'+obj.farm+'.staticflickr.com/'+obj.server+'/'+obj.id+'_'+obj.secret+'_q.jpg';
+					$('#imagecontainer').append('<img class="backgroundset" src="'+addr+'" />');
+					if (stop == 1) {
+						stop = 0;
+						break;
+					}
+				}
+				// $('#imagecontainer').html('<img src="')
+			}
+
 
 		</script>
 </html>

@@ -1,6 +1,12 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http)
+var Flickr = require("flickrapi"),
+    flickrOptions = {
+      api_key: "86f8a2aedd5fae483f4ff847edbd43e9",
+      secret: "dff1851d65bf771c"
+    };
+
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -8,7 +14,7 @@ app.get('/', function (req, res) {
 
 var usernames = {};
 var numUsers = 0;
-
+var imgres;
 io.sockets.on('connection', function(socket) {
     var addedUser = false;
 
@@ -46,7 +52,23 @@ io.sockets.on('connection', function(socket) {
     });
     socket.on('turnover', function(data) {
       var to = data.to;
-      io.sockets.connected[to].emit('turnover', {to:data.to, val: data.val});
+
+       Flickr.tokenOnly(flickrOptions, function(error, flickr) {
+  
+   flickr.photos.search({
+       page: 1,
+     per_page: 80,
+       tags: data.val,
+       in_gallery: 1
+      }, function(err, result) {
+       // console.log(result);
+       imgres = result;
+      });
+
+      });
+
+      io.sockets.connected[to].emit('turnover', {to:data.to, val: data.val, imgres: imgres});
+      io.sockets.connected[data.from].emit('picchange', {imgres: imgres});
     });
     socket.on('gameover', function(data) {
       var to = data.to;
